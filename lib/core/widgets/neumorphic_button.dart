@@ -14,6 +14,7 @@ class NeumorphicButton extends StatefulWidget {
     this.height = 52.0,
     this.borderRadius,
     this.isPressed = false,
+    this.surfaceColor,
   });
 
   final VoidCallback? onPressed;
@@ -22,6 +23,7 @@ class NeumorphicButton extends StatefulWidget {
   final double height;
   final double? borderRadius;
   final bool isPressed;
+  final Color? surfaceColor;
 
   @override
   State<NeumorphicButton> createState() => _NeumorphicButtonState();
@@ -34,6 +36,13 @@ class _NeumorphicButtonState extends State<NeumorphicButton> {
   Widget build(BuildContext context) {
     final pressed = _isDown || widget.isPressed;
     final radius = widget.borderRadius ?? AppDimensions.radiusRound;
+    var decoration =
+        (pressed ? context.neumorphicInset : context.neumorphicRaised)
+            .copyWith(borderRadius: BorderRadius.circular(radius));
+
+    if (widget.surfaceColor != null) {
+      decoration = decoration.copyWith(color: widget.surfaceColor);
+    }
 
     return GestureDetector(
       onTapDown: widget.onPressed != null
@@ -50,10 +59,44 @@ class _NeumorphicButtonState extends State<NeumorphicButton> {
         duration: const Duration(milliseconds: 100),
         width: widget.width,
         height: widget.height,
-        decoration:
-            (pressed ? context.neumorphicInset : context.neumorphicRaised)
-                .copyWith(borderRadius: BorderRadius.circular(radius)),
+        decoration: decoration,
         child: Center(child: widget.child),
+      ),
+    );
+  }
+}
+
+/// A circular neumorphic icon button.
+class NeumorphicIconButton extends StatelessWidget {
+  const NeumorphicIconButton({
+    super.key,
+    required this.icon,
+    required this.onPressed,
+    this.size = 52.0,
+    this.iconColor,
+    this.backgroundColor,
+    this.borderRadius,
+  });
+
+  final IconData icon;
+  final VoidCallback? onPressed;
+  final double size;
+  final Color? iconColor;
+  final Color? backgroundColor;
+  final double? borderRadius;
+
+  @override
+  Widget build(BuildContext context) {
+    return NeumorphicButton(
+      onPressed: onPressed,
+      width: size,
+      height: size,
+      borderRadius: borderRadius ?? AppDimensions.radiusRound,
+      surfaceColor: backgroundColor,
+      child: Icon(
+        icon,
+        color: iconColor ?? AppColors.textPrimary,
+        size: AppDimensions.iconLg,
       ),
     );
   }

@@ -1044,7 +1044,6 @@ STATES:
 8. Implement `neumorphic_styles.dart` (BoxDecoration factories for raised/inset)
 9. Build shared widgets: `NeumorphicCard`, `NeumorphicButton`, `NeumorphicContainer`, `NeumorphicToggle`
 10. Implement `AppTheme` (light + dark `ThemeData`)
-11. Splash screen with app logo
 
 **Deliverable:** App launches, shows placeholder home, routing works, DB initializes without error.
 

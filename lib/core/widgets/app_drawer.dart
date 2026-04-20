@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../theme/neumorphism/neumorphic_theme.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_dimensions.dart';
 import '../theme/app_text_styles.dart';
@@ -45,13 +46,13 @@ class AppDrawer extends StatelessWidget {
                 const SizedBox(height: AppDimensions.sm),
 
                 const _DrawerItem(
-                  icon: Icons.home_outlined,
-                  label: 'Habits',
+                  icon: Icons.folder,
+                  label: 'Habits List',
                   route: RoutePaths.home,
                 ),
                 const _DrawerItem(
                   icon: Icons.park_outlined,
-                  label: 'Habit Tree',
+                  label: 'Habit Tree Garden',
                   route: RoutePaths.habitTreeGarden,
                 ),
                 const _DrawerItem(
@@ -64,10 +65,6 @@ class AppDrawer extends StatelessWidget {
                   label: 'Settings',
                   route: RoutePaths.settings,
                 ),
-
-                const Divider(),
-                const SizedBox(height: AppDimensions.sm),
-
                 const _DrawerItem(
                   icon: Icons.info_outline,
                   label: 'Introduction',
@@ -101,28 +98,41 @@ class _DrawerItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isActive = GoRouterState.of(context).matchedLocation == route;
+    final decoration =
+        isActive ? context.neumorphicInset : context.neumorphicRaised;
 
-    return ListTile(
-      leading: Icon(
-        icon,
-        color: isActive ? AppColors.primary : AppColors.textSecondary,
-      ),
-      title: Text(
-        label,
-        style: AppTextStyles.titleMedium.copyWith(
-          color: isActive ? AppColors.primary : AppColors.textPrimary,
-          fontWeight: isActive ? FontWeight.bold : FontWeight.w600,
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: AppDimensions.xs),
+      child: Container(
+        decoration: decoration.copyWith(
+          borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
+        ),
+        child: ListTile(
+          leading: Icon(
+            icon,
+            color: isActive ? AppColors.primary : AppColors.textSecondary,
+          ),
+          title: Text(
+            label,
+            style: AppTextStyles.titleMedium.copyWith(
+              color: isActive ? AppColors.primary : AppColors.textPrimary,
+              fontWeight: isActive ? FontWeight.bold : FontWeight.w600,
+            ),
+          ),
+          onTap: () {
+            context.go(route);
+            Navigator.of(context).pop();
+          },
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
+          ),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: AppDimensions.lg,
+            vertical: AppDimensions.sm,
+          ),
+          tileColor: Colors.transparent,
         ),
       ),
-      onTap: () {
-        context.go(route);
-        Navigator.of(context).pop();
-      },
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppDimensions.radiusSm),
-      ),
-      tileColor:
-          isActive ? AppColors.primaryContainer.withValues(alpha: 0.4) : null,
     );
   }
 }

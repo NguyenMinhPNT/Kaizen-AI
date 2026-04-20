@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
-import '../../../../core/theme/app_text_styles.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
+import '../bloc/habit_form_bloc.dart';
+import '../bloc/habit_form_event.dart';
+import '../widgets/habit_form_body.dart';
 
-/// Edit habit page — form to modify an existing habit. (Placeholder for Sprint 2)
 class EditHabitPage extends StatelessWidget {
   const EditHabitPage({super.key, required this.habitId});
 
@@ -9,16 +12,9 @@ class EditHabitPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Edit Habit', style: AppTextStyles.headlineMedium),
-      ),
-      body: Center(
-        child: Text(
-          'Edit Habit $habitId — Sprint 2',
-          style: AppTextStyles.bodyLarge,
-        ),
-      ),
+    return BlocProvider(
+      create: (_) => GetIt.instance<HabitFormBloc>()..add(LoadForEdit(habitId)),
+      child: HabitFormBody(isEdit: true, habitId: habitId),
     );
   }
 }

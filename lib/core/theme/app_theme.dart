@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'app_colors.dart';
+import 'app_dimensions.dart';
 import 'app_text_styles.dart';
 
 /// App-wide [ThemeData] for light and dark modes.
@@ -42,7 +43,10 @@ abstract class AppTheme {
             backgroundColor: AppColors.primary,
             foregroundColor: AppColors.onPrimary,
             textStyle: AppTextStyles.labelLarge,
-            shape: const StadiumBorder(),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
+            ),
+            elevation: 0,
           ),
         ),
         drawerTheme: const DrawerThemeData(
@@ -93,7 +97,10 @@ abstract class AppTheme {
             backgroundColor: AppColors.primaryLight,
             foregroundColor: AppColors.surfaceBaseDark,
             textStyle: AppTextStyles.labelLargeDark,
-            shape: const StadiumBorder(),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
+            ),
+            elevation: 0,
           ),
         ),
         drawerTheme: const DrawerThemeData(

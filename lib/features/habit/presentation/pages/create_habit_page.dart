@@ -1,22 +1,19 @@
 import 'package:flutter/material.dart';
-import '../../../../core/theme/app_text_styles.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
+import '../bloc/habit_form_bloc.dart';
+import '../bloc/habit_form_event.dart';
+import '../widgets/habit_form_body.dart';
 
-/// Create habit page — form to add a new habit. (Placeholder for Sprint 2)
 class CreateHabitPage extends StatelessWidget {
   const CreateHabitPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('New Habit', style: AppTextStyles.headlineMedium),
-      ),
-      body: Center(
-        child: Text(
-          'Create Habit — Sprint 2',
-          style: AppTextStyles.bodyLarge,
-        ),
-      ),
+    return BlocProvider(
+      create: (_) =>
+          GetIt.instance<HabitFormBloc>()..add(const InitializeCreateForm()),
+      child: const HabitFormBody(isEdit: false),
     );
   }
 }
