@@ -59,6 +59,10 @@ class HabitLogDao extends DatabaseAccessor<AppDatabase>
   Future<int> insertLog(HabitLogsCompanion entry) =>
       into(habitLogs).insert(entry);
 
+  /// Deletes all logs for a specific habit.
+  Future<int> deleteLogsForHabit(int habitId) =>
+      (delete(habitLogs)..where((l) => l.habitId.equals(habitId))).go();
+
   /// Updates an existing log row.
   Future<bool> updateLog(HabitLogsCompanion entry) =>
       update(habitLogs).replace(entry);

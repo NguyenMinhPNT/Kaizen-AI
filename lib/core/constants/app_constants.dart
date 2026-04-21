@@ -27,4 +27,6 @@ abstract class AppConstants {
   static const String prefTimerStartEpoch = 'timer_start_epoch';
   static const String prefTimerElapsedSec = 'timer_elapsed_seconds';
   static const String prefTimerStatus = 'timer_status';
+  static const String prefTimerTargetSeconds = 'timer_target_seconds';
+  static const String prefTimerPausedEpoch = 'timer_paused_epoch';
 }

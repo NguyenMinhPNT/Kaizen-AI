@@ -72,4 +72,24 @@ class HabitRepositoryImpl implements HabitRepository {
     final numId = int.tryParse(habitId) ?? 0;
     return _datasource.getTodayStatus(numId);
   }
+
+  @override
+  Future<void> logTimerSession({
+    required String habitId,
+    required int targetMinutes,
+    required int actualMinutes,
+    required HabitStatus status,
+    required double completionPct,
+    required DateTime date,
+  }) {
+    final numId = int.tryParse(habitId) ?? 0;
+    return _datasource.logTimerSession(
+      habitId: numId,
+      targetMinutes: targetMinutes,
+      actualMinutes: actualMinutes,
+      status: status.name,
+      completionPct: completionPct,
+      date: date,
+    );
+  }
 }

@@ -10,8 +10,13 @@ import '../models/habit_model.dart';
 class HabitLocalDatasource {
   final HabitDao _habitDao;
   final HabitLogDao _habitLogDao;
+  final AppDatabase _database;
 
-  HabitLocalDatasource(this._habitDao, this._habitLogDao);
+  HabitLocalDatasource(
+    this._habitDao,
+    this._habitLogDao,
+    this._database,
+  );
 
   Future<List<HabitEntity>> getAllHabits() async {
     final rows = await _habitDao.getAllHabits();
@@ -48,7 +53,11 @@ class HabitLocalDatasource {
   }
 
   Future<void> deleteHabit(int id) async {
-    await _habitDao.deleteHabit(id);
+    await _habitDao.transaction(() async {
+      await _habitLogDao.deleteLogsForHabit(id);
+      await _database.habitTreeDao.deleteTreeForHabit(id);
+      await _habitDao.deleteHabit(id);
+    });
   }
 
   Future<void> archiveHabit(int id) async {
@@ -110,6 +119,24 @@ class HabitLocalDatasource {
       (s) => s.name == row.status,
       orElse: () => HabitStatus.skipped,
     );
+  }
+
+  Future<void> logTimerSession({
+    required int habitId,
+    required int targetMinutes,
+    required int actualMinutes,
+    required String status,
+    required double completionPct,
+    required DateTime date,
+  }) async {
+    await _habitLogDao.upsertLog(HabitLogsCompanion(
+      habitId: Value(habitId),
+      logDate: Value(DateTime(date.year, date.month, date.day)),
+      targetDurationMinutes: Value(targetMinutes),
+      actualDurationMinutes: Value(actualMinutes),
+      status: Value(status),
+      completionPercentage: Value(completionPct),
+    ));
   }
 
   static HabitLogEntity _logToEntity(HabitLog log) => HabitLogEntity(

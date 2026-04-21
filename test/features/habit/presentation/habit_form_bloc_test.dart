@@ -27,7 +27,8 @@ void main() {
       await bloc.close();
     });
 
-    test('InitializeCreateForm moves bloc into ready state for create flow', () async {
+    test('InitializeCreateForm moves bloc into ready state for create flow',
+        () async {
       bloc.add(const InitializeCreateForm());
       await Future<void>.delayed(Duration.zero);
 
@@ -72,6 +73,16 @@ class _FakeHabitRepository implements HabitRepository {
 
   @override
   Future<void> logHabit(HabitLogEntity log) async {}
+
+  @override
+  Future<void> logTimerSession({
+    required String habitId,
+    required int targetMinutes,
+    required int actualMinutes,
+    required HabitStatus status,
+    required double completionPct,
+    required DateTime date,
+  }) async {}
 
   @override
   Future<void> updateHabit(HabitEntity habit) async {}

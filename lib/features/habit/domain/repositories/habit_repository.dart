@@ -16,4 +16,15 @@ abstract class HabitRepository {
   Future<List<HabitLogEntity>> getLogsForHabit(String habitId);
   Future<HabitLogEntity?> getLogForDate(String habitId, DateTime date);
   Future<HabitStatus?> getTodayStatus(String habitId);
+
+  /// Logs a timer session with separate target/actual durations and completion %.
+  /// Used by [FinishTimerUseCase] and [GiveUpTimerUseCase].
+  Future<void> logTimerSession({
+    required String habitId,
+    required int targetMinutes,
+    required int actualMinutes,
+    required HabitStatus status,
+    required double completionPct,
+    required DateTime date,
+  });
 }

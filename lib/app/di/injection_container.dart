@@ -1,6 +1,7 @@
 import 'package:drift_flutter/drift_flutter.dart';
 import 'package:get_it/get_it.dart';
 import 'package:injectable/injectable.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/database/app_database.dart';
 import '../../core/database/daos/habit_dao.dart';
 import '../../core/database/daos/habit_log_dao.dart';
@@ -18,6 +19,15 @@ import '../../features/habit/domain/usecases/level_up_habit_usecase.dart';
 import '../../features/habit/domain/usecases/update_habit_usecase.dart';
 import '../../features/habit/presentation/bloc/habit_form_bloc.dart';
 import '../../features/habit/presentation/bloc/habit_list_bloc.dart';
+import '../../features/timer/data/datasources/timer_service.dart';
+import '../../features/timer/data/repositories/timer_repository_impl.dart';
+import '../../features/timer/domain/repositories/timer_repository.dart';
+import '../../features/timer/domain/usecases/finish_timer_usecase.dart';
+import '../../features/timer/domain/usecases/give_up_timer_usecase.dart';
+import '../../features/timer/domain/usecases/pause_timer_usecase.dart';
+import '../../features/timer/domain/usecases/resume_timer_usecase.dart';
+import '../../features/timer/domain/usecases/start_timer_usecase.dart';
+import '../../features/timer/presentation/bloc/timer_bloc.dart';
 
 import 'injection_container.config.dart';
 
@@ -27,6 +37,7 @@ final getIt = GetIt.instance;
 Future<void> configureDependencies() async {
   getIt.init();
   _registerHabitDependencies();
+  await _registerTimerDependencies();
 }
 
 /// Module that registers database-related singletons.
@@ -52,7 +63,11 @@ abstract class DatabaseModule {
 void _registerHabitDependencies() {
   // ── Data layer
   getIt.registerLazySingleton<HabitLocalDatasource>(
-    () => HabitLocalDatasource(getIt<HabitDao>(), getIt<HabitLogDao>()),
+    () => HabitLocalDatasource(
+      getIt<HabitDao>(),
+      getIt<HabitLogDao>(),
+      getIt<AppDatabase>(),
+    ),
   );
 
   getIt.registerLazySingleton<HabitRepository>(
@@ -92,6 +107,53 @@ void _registerHabitDependencies() {
       createHabit: getIt<CreateHabitUseCase>(),
       getHabitById: getIt<GetHabitByIdUseCase>(),
       updateHabit: getIt<UpdateHabitUseCase>(),
+    ),
+  );
+}
+
+/// Registers Sprint 3 timer feature dependencies.
+Future<void> _registerTimerDependencies() async {
+  final prefs = await SharedPreferences.getInstance();
+
+  // ── Data layer
+  getIt.registerLazySingleton<TimerService>(() => TimerService(prefs));
+
+  getIt.registerLazySingleton<TimerRepository>(
+    () => TimerRepositoryImpl(getIt<TimerService>()),
+  );
+
+  // ── Use cases
+  getIt.registerLazySingleton(
+    () => StartTimerUseCase(getIt<TimerRepository>()),
+  );
+  getIt.registerLazySingleton(
+    () => PauseTimerUseCase(getIt<TimerRepository>()),
+  );
+  getIt.registerLazySingleton(
+    () => ResumeTimerUseCase(getIt<TimerRepository>()),
+  );
+  getIt.registerLazySingleton(
+    () => GiveUpTimerUseCase(
+      timerRepo: getIt<TimerRepository>(),
+      habitRepo: getIt<HabitRepository>(),
+    ),
+  );
+  getIt.registerLazySingleton(
+    () => FinishTimerUseCase(
+      timerRepo: getIt<TimerRepository>(),
+      habitRepo: getIt<HabitRepository>(),
+    ),
+  );
+
+  // ── BLoC (factory — new instance per screen)
+  getIt.registerFactory<TimerBloc>(
+    () => TimerBloc(
+      start: getIt<StartTimerUseCase>(),
+      pause: getIt<PauseTimerUseCase>(),
+      resume: getIt<ResumeTimerUseCase>(),
+      giveUp: getIt<GiveUpTimerUseCase>(),
+      finish: getIt<FinishTimerUseCase>(),
+      timerRepo: getIt<TimerRepository>(),
     ),
   );
 }
