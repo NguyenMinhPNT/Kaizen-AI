@@ -239,7 +239,7 @@ class HabitIconLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Text(
-      label.isEmpty ? 'Tap to set name' : label,
+      label.isEmpty ? 'Habit name' : label,
       style: label.isEmpty
           ? AppTextStyles.bodyMedium
           : AppTextStyles.headlineMedium,

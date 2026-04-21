@@ -160,7 +160,8 @@ class _FormContentState extends State<_FormContent> {
                     isDense: true,
                   ),
                   style: AppTextStyles.bodyLarge,
-                  onChanged: (v) => bloc.add(NameChanged(v)),
+                  textInputAction: TextInputAction.done,
+                  onSubmitted: (v) => bloc.add(NameChanged(v)),
                   textCapitalization: TextCapitalization.sentences,
                 ),
               ],
@@ -194,7 +195,10 @@ class _FormContentState extends State<_FormContent> {
 
           // ── Duration settings
           _SectionCard(
-            child: _DurationSection(state: s),
+            child: _DurationSection(
+              state: s,
+              enabled: s.levelUpMode != LevelUpMode.autopilot,
+            ),
           ),
           const SizedBox(height: AppDimensions.md),
 
@@ -225,7 +229,10 @@ class _SectionCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(AppDimensions.md),
-      decoration: context.neumorphicRaised,
+      decoration: context.neumorphicRaised.copyWith(
+        color: context.neumorphicSurfaceElevated,
+        borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
+      ),
       child: child,
     );
   }
@@ -275,8 +282,9 @@ class _PreviewHeader extends StatelessWidget {
 // ── Duration section ─────────────────────────────────────────────────────────
 
 class _DurationSection extends StatelessWidget {
-  const _DurationSection({required this.state});
+  const _DurationSection({required this.state, required this.enabled});
   final HabitFormReady state;
+  final bool enabled;
 
   @override
   Widget build(BuildContext context) {
@@ -290,58 +298,64 @@ class _DurationSection extends StatelessWidget {
       ));
     }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const _FieldLabel('Duration Settings'),
-        const SizedBox(height: AppDimensions.md),
-        _StepperRow(
-          label: 'Current',
-          value: state.currentDurationMinutes,
-          unit: 'min',
-          min: 5,
-          max: state.maxDurationMinutes,
-          step: state.incrementMinutes,
-          onDecrement: () => emit(
-            current: (state.currentDurationMinutes - state.incrementMinutes)
-                .clamp(5, state.maxDurationMinutes),
-          ),
-          onIncrement: () => emit(
-            current: (state.currentDurationMinutes + state.incrementMinutes)
-                .clamp(5, state.maxDurationMinutes),
-          ),
+    return Opacity(
+      opacity: enabled ? 1.0 : 0.5,
+      child: AbsorbPointer(
+        absorbing: !enabled,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const _FieldLabel('Duration Settings'),
+            const SizedBox(height: AppDimensions.md),
+            _StepperRow(
+              label: 'Current',
+              value: state.currentDurationMinutes,
+              unit: 'min',
+              min: 5,
+              max: state.maxDurationMinutes,
+              step: state.incrementMinutes,
+              onDecrement: () => emit(
+                current: (state.currentDurationMinutes - state.incrementMinutes)
+                    .clamp(5, state.maxDurationMinutes),
+              ),
+              onIncrement: () => emit(
+                current: (state.currentDurationMinutes + state.incrementMinutes)
+                    .clamp(5, state.maxDurationMinutes),
+              ),
+            ),
+            const SizedBox(height: AppDimensions.sm),
+            _StepperRow(
+              label: 'Increment',
+              value: state.incrementMinutes,
+              unit: 'min',
+              min: 1,
+              max: 30,
+              step: 1,
+              onDecrement: () =>
+                  emit(increment: (state.incrementMinutes - 1).clamp(1, 30)),
+              onIncrement: () =>
+                  emit(increment: (state.incrementMinutes + 1).clamp(1, 30)),
+            ),
+            const SizedBox(height: AppDimensions.sm),
+            _StepperRow(
+              label: 'Max',
+              value: state.maxDurationMinutes,
+              unit: 'min',
+              min: state.currentDurationMinutes,
+              max: 480,
+              step: 5,
+              onDecrement: () => emit(
+                max: (state.maxDurationMinutes - 5)
+                    .clamp(state.currentDurationMinutes, 480),
+              ),
+              onIncrement: () => emit(
+                max: (state.maxDurationMinutes + 5)
+                    .clamp(state.currentDurationMinutes, 480),
+              ),
+            ),
+          ],
         ),
-        const SizedBox(height: AppDimensions.sm),
-        _StepperRow(
-          label: 'Increment',
-          value: state.incrementMinutes,
-          unit: 'min',
-          min: 1,
-          max: 30,
-          step: 1,
-          onDecrement: () =>
-              emit(increment: (state.incrementMinutes - 1).clamp(1, 30)),
-          onIncrement: () =>
-              emit(increment: (state.incrementMinutes + 1).clamp(1, 30)),
-        ),
-        const SizedBox(height: AppDimensions.sm),
-        _StepperRow(
-          label: 'Max',
-          value: state.maxDurationMinutes,
-          unit: 'min',
-          min: state.currentDurationMinutes,
-          max: 480,
-          step: 5,
-          onDecrement: () => emit(
-            max: (state.maxDurationMinutes - 5)
-                .clamp(state.currentDurationMinutes, 480),
-          ),
-          onIncrement: () => emit(
-            max: (state.maxDurationMinutes + 5)
-                .clamp(state.currentDurationMinutes, 480),
-          ),
-        ),
-      ],
+      ),
     );
   }
 }
@@ -379,7 +393,7 @@ class _StepperRow extends StatelessWidget {
           onPressed: value > min ? onDecrement : null,
         ),
         SizedBox(
-          width: 60,
+          width: 80,
           child: Text(
             '$value $unit',
             style: AppTextStyles.titleMedium,
@@ -402,24 +416,16 @@ class _StepButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return NeumorphicButton(
+      onPressed: onPressed,
       width: 36,
       height: 36,
-      decoration: onPressed != null
-          ? context.neumorphicRaised.copyWith(
-              borderRadius: BorderRadius.circular(AppDimensions.radiusSm),
-            )
-          : context.neumorphicInset.copyWith(
-              borderRadius: BorderRadius.circular(AppDimensions.radiusSm),
-            ),
-      child: IconButton(
-        padding: EdgeInsets.zero,
-        icon: Icon(
-          icon,
-          size: 18,
-          color: onPressed != null ? AppColors.textPrimary : AppColors.textHint,
-        ),
-        onPressed: onPressed,
+      borderRadius: AppDimensions.radiusSm,
+      surfaceColor: context.neumorphicSurfaceElevated,
+      child: Icon(
+        icon,
+        size: 18,
+        color: onPressed != null ? AppColors.textPrimary : AppColors.textHint,
       ),
     );
   }
@@ -436,7 +442,7 @@ class _LevelUpModeSection extends StatelessWidget {
       LevelUpMode.manual,
       'Manual',
       Icons.touch_app_outlined,
-      'You decide when to level up'
+      'You decide when to level up/down'
     ),
     (
       LevelUpMode.copilot,
@@ -448,7 +454,7 @@ class _LevelUpModeSection extends StatelessWidget {
       LevelUpMode.autopilot,
       'Autopilot',
       Icons.auto_awesome_outlined,
-      'AI levels up automatically'
+      'AI levels up/down automatically'
     ),
   ];
 
@@ -459,7 +465,7 @@ class _LevelUpModeSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const _FieldLabel('Level Up Mode'),
+        const _FieldLabel('Level Up/Down Mode'),
         const SizedBox(height: AppDimensions.sm),
         ..._modes.map((entry) {
           final (mode, label, icon, subtitle) = entry;

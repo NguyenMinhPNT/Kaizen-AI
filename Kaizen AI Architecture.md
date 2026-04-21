@@ -1025,9 +1025,6 @@ STATES:
 ---
 
 ## 11. SPRINT IMPLEMENTATION PLAN
-
-> **Convention:** Each sprint = ~1 week. Sprints are ordered by dependency. Claude Code should implement one sprint fully before moving to the next.
-
 ---
 
 ### 🏗 SPRINT 1 — Foundation & Infrastructure
