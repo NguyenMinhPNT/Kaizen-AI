@@ -13,7 +13,29 @@ class IntroductionPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Introduction', style: AppTextStyles.headlineMedium),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        elevation: 0,
+        leading: Padding(
+          padding: const EdgeInsets.fromLTRB(8, 4, 0, 4),
+          child: Builder(
+            builder: (ctx) => NeumorphicIconButton(
+              icon: Icons.menu,
+              iconColor: AppColors.primary,
+              backgroundColor: AppColors.surfaceElevated,
+              onPressed: () => Scaffold.of(ctx).openDrawer(),
+              size: 46,
+            ),
+          ),
+        ),
+        title: Text(
+          'Introduction',
+          style: AppTextStyles.headlineMedium.copyWith(
+            fontSize: 28,
+            fontWeight: FontWeight.bold,
+            fontFamily: 'Angkor',
+          ),
+        ),
+        centerTitle: true,
       ),
       drawer: const AppDrawer(),
       body: SafeArea(
